@@ -1,0 +1,501 @@
+
+/*Refined stylings*/
+ /* Reset some default styling */
+ * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-size: cover;
+  background-color: white;
+  background-position: center;
+  transition: background-image 0.5s ease-in-out;
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  width: 100%;
+  z-index: 2000; /* Keeps menu above background */
+  background-color: black; /* Transparency */
+  padding: 10px 20px;
+  }
+  .navbar UL{
+    display: flex;
+  }
+  .navbar ul li {
+    padding: 10px;
+    margin-left: 10px;
+  }
+  .navbar ul li a {
+    text-decoration: none;
+    color: #fff;
+    font-size: 18px;
+    transition: color 0.3s ease;
+  }
+  .navbar ul li a:hover {
+    color: red;
+  }
+  /* Mobile-specific styles */
+  .menuIcon {
+  font-size: 28px;
+  color: black;
+  cursor: pointer;
+  display: none; /* Hidden on large screens */
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: red; /* Light background for visibility */
+    width: 100%;
+    position: relative;
+    z-index: 2000; /* Ensures header stays above other content */
+    }
+    .head h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    }
+    /*BACKGROUND-STYYLING*/
+
+/*background-image*/
+.background-container{
+  width: 100%;
+  background-attachment: fixed;
+  height: 500px;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  background-repeat: no-repeat;
+  display: flex;
+  background-size: cover;
+  background-position: center;
+}
+.image{
+  width: 100%;
+  height: 500px;
+}
+.image img{
+  width: 100%;
+  height: 100%;
+}
+#toggle-btn{
+  position: absolute;
+  bottom: 10px 20px;
+  font-size: 50px;
+  border: none;
+  font-weight: bolder;
+  background-color: transparent;
+  cursor: pointer;
+  margin-bottom: -27rem;
+  color: black;
+}
+#toggle-btn:hover{
+  color: green;
+  transition: 0.5s;
+}
+/*background image ends*/
+/*logo image*/
+.logo{
+  text-align: start;
+  justify-content: start;
+}
+.logo img{
+  width: 50px;
+  height: 50px;
+}
+/*logo image*/
+/*header contents starts*/
+.header{
+  display: flex;
+  background-color: red;
+  align-items: center;
+  justify-content: space-between;
+}
+.head{
+  display: flex;
+  align-items: center;
+  margin-left: 2rem;
+  justify-content: center;
+  margin-right: 10px;
+  gap: 20px;
+}
+.head img{
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+}
+.head h4{
+  display: inline-flex;
+}
+.social ul{
+  display: flex;
+}
+.social ul li{
+  display: flex;
+  list-style: none;
+  margin: 4PX;
+}
+.social ul li a{
+  color: white;
+  text-decoration: none;
+}
+.social ul li img:hover{
+  background-color: WHITE;
+  transition: 0.5s;
+  border: 2PX solid WHITE;
+}
+.social img{
+  width: 30px;
+  height: 30px;
+  border-radius: 20px;
+}
+/*BACKGROUND-STYLINGS*/
+ /*LETTER-HEAD*/
+.letter-head{
+  margin-top: 1rem;
+  z-index: 1000;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  margin-top: 23%;
+  margin-left: 4rem;
+  align-items: center;
+}
+.letter{
+  text-align: center;
+}
+.letter h2{
+  color: red;
+  font-size: xx-large;
+  font-weight: bolder;
+}
+.letter h4{
+  color: #f5d67c;
+}
+.letter p{
+  color: #f0f0f0;
+  font-weight: bold;
+  font-size: 20px;
+}
+#visit{
+  width: 30%;
+  font-size: 20px;
+  font-weight: bolder;
+  flex: 1;
+  padding: 6px;
+  margin: 1rem;
+  background-color: red;
+  border: none;
+  margin-right: 0.3rem;
+  border-radius: 5px;
+  color: white;
+}
+#visit:hover{
+  color: black;
+  border: 2px solid black;
+  background-color: transparent;
+  transition: 0.4s;
+}
+#visit a{
+  color: black;
+  text-decoration: none;
+}
+ /*LETTER-HEAD*/
+/*projects starst here*/
+
+/* CSS */
+.video-carousel {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  background-color: black;
+  max-width: 100vw;
+  margin-bottom: 0;
+}
+
+.videos-container {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  width: 100%;
+}
+
+.videos-container video {
+  flex: 0 0 auto;
+  width: 100%;
+  max-height: 200px;
+  max-width: 300px;
+  border-radius: 10px;
+  margin-right: 10px;
+}
+
+.nav {
+  position: absolute;
+  top: 50%;
+  background: rgba(255,255,255,0.6);
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+.prev { left: 5px; color: red;}
+.next { right: 5px; color: red;}
+/*PROJECTS ENDS HERE*/
+/*CONTACT FORM*/
+/*FORM*/
+
+form {
+  max-width: 80%;
+  margin: auto;
+  display: flex;
+  background-color: white;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+
+input, textarea {
+  padding: 10px;
+  border-bottom: 2px solid;
+  outline: none;
+  background-color: transparent;
+  font-size: 16px;
+  width: 100%;
+}
+
+button {
+  padding: 10px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 18px;
+  cursor: pointer;
+}
+/*FORM*/
+.contacts{
+  background-color: red;
+  margin-top: 0;
+  color: black;
+}
+.contacts-head{
+  color: black;
+  text-align: center;
+}
+.contacts-head h2{
+  margin-bottom: 7px;
+}
+.contacts-head p{
+  padding: 3px;
+}
+.contacts-container{
+  display: grid;
+  grid-template-columns: 2fr 1.5fr;
+  gap: 10px;
+}
+.contact{
+  box-shadow: 1px 1px 1px black;
+  margin-top: 2rem;
+}
+.contact h2, p{
+  text-align: center;
+}
+.contact ul{
+  display: flex;
+  flex-direction: column;
+  margin-left: 2rem;
+  margin-top: 2rem;
+}
+.contact ul li{
+  list-style: none;
+  display: flex;
+  padding: 8px;
+  flex-direction: row;
+  margin-right: 4px;
+}
+.contact ul li img{
+  width: 20px;
+  margin-right: 1rem;
+  height: 20px;
+  border-radius: 30px;
+}
+.contact ul li a{
+  text-decoration: none;
+  color: black;
+}
+    /*CONTACT FORM*/
+    /*FOOTER*/
+.footer{
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  gap: 10px;
+  margin-top: 0;
+  width: 100%;
+  color: white;
+  background-color: black;
+}
+.links{
+  margin-left: 1rem;
+  margin-top: 2rem;
+}
+.links ul{
+  display: flex;
+  flex-direction: column;
+  margin-left: 2rem;
+  gap: 10px;
+}
+.links ul li{
+  list-style: none;
+}
+.links ul li a{
+  text-decoration: none;
+  color: white;
+}
+.links ul li a:hover{
+  color: red;
+  transition: 0.5s;
+}
+.logoimage{
+  width: 100px;
+  height: 100px;
+}
+.logoimage img{
+  width: 100%;
+  height: 100%;
+  color: white;
+  margin-right: 6rem;
+  margin-top: 2REM;
+}
+.log1{
+  margin-left: 20%;
+  margin-top: 2rem;
+  display: flex;
+}
+.info{
+  margin-left: 5rem;
+}
+.info ul li{
+  list-style: none;
+  padding: 8px;
+  margin-right: 5px;
+  display: flex;
+}
+.info img{
+  width: 20px;
+  margin-right: 1rem;
+  height: 20px;
+  border-radius: 20px;
+}
+.ends{
+  color: red;
+  text-align: center;
+  background-color: black;
+  font-size: 20px;
+}
+    /*FOOTER*/
+  /* Mobile Menu Display */
+  @media screen and (max-width: 768px) {
+  .menuIcon {
+      display: block;
+      color: white;
+  }
+  .navbar ul {
+      display: none;
+      flex-direction: column;
+      position: absolute;
+      top: 50px;
+      left: 0;
+      text-align: center;
+      width: 100%;
+      background-color: black; /* Keeps menu above background */
+      padding: 15px;
+  }
+  .navbar ul li:hover{
+    background-color: red;
+    transition: 0.5s;
+  }
+  .navbar ul.show {
+      display: flex;
+  }
+  /* Ensure .header doesn't shrink */
+  .header {
+    padding: 20px;
+    font-size: 16px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+  }
+  .image{
+    width: 100%;
+    height: 500px;
+    flex: 1;
+}
+.head{
+    margin-left: 5px;
+}
+.head img{
+    flex: 1;
+}
+.social img{
+    flex: 1;
+}
+.social ul{
+    position: relative;
+    margin-left: 86%;
+}
+  .footer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  }
+
+  /*VIDEOS SECTION*/
+
+
+/* Medium screens: Show 2 videos */
+@media (max-width: 768px) {
+  video {
+      width: 48%;
+  }
+}
+
+/* Small screens: Show 1 video */
+@media (max-width: 480px) {
+  video {
+      width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-card {
+      flex: 0 0 calc(50% - 10px);
+  }
+}
+
+@media (max-width: 480px) {
+  .product-card {
+      flex: 0 0 100%;
+  }
+}
+
+  /*VIDEOS SECTION HERE*/
+  
+/*Refined stylings*/
