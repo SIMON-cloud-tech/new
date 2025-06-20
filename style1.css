@@ -157,7 +157,7 @@ body {
 }
 .social ul{
   display: flex;
- flex-wrap: wrap;
+ 
 }
 .social ul li{
   display: flex;
