@@ -146,7 +146,6 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.1rem;
-  overflow: hidden;
   max-width: 100%;
 }
 .social img{
