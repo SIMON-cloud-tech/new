@@ -192,24 +192,3 @@ document.querySelectorAll('video').forEach(video => {
   video.style.width = '320px';
   video.style.height = '180px';
 });
-
-//mobile users//
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll("img").forEach(function (img) {
-    img.style.cursor = "pointer"; // Optional: gives a hint it's clickable
-
-    img.addEventListener("click", function () {
-      if (document.fullscreenElement) {
-        document.exitFullscreen();
-      } else {
-        if (img.requestFullscreen) {
-          img.requestFullscreen();
-        } else if (img.webkitRequestFullscreen) {
-          img.webkitRequestFullscreen(); // Safari
-        } else if (img.msRequestFullscreen) {
-          img.msRequestFullscreen(); // IE/Edge
-        }
-      }
-    });
-  });
-});
