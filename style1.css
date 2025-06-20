@@ -157,10 +157,10 @@ body {
 }
 .social ul{
   display: flex;
+ flex-wrap: wrap;
  
 }
 .social ul li{
-  display: flex;
   list-style: none;
   margin: 4PX;
 }
