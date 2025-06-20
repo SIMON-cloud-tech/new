@@ -15,7 +15,8 @@ body {
   background-color: white;
   background-position: center;
  background-repeat: no-repeat;
- overflow-x: hidden;
+ background-size: cover;
+ width: 100vw;
   transition: background-image 0.5s ease-in-out;
 }
 
@@ -160,6 +161,7 @@ body {
  
 }
 .social ul li{
+ display: flex;
   list-style: none;
   margin: 4PX;
 }
