@@ -162,6 +162,7 @@ body {
 }
 .social ul li{
   list-style: none;
+ display: flex;
   margin: 4PX;
 }
 .social ul li a{
