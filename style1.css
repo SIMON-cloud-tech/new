@@ -135,9 +135,22 @@ body {
   width: 20px;
   height: 20px;
   border-radius: 20px;
+
 }
 .head h4{
   display: inline-flex;
+}
+.social{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.1rem;
+  overflow: hidden;
+  max-width: 100%;
+}
+.social img{
+  object-fit: contain;
 }
 .social ul{
   display: flex;
@@ -159,6 +172,7 @@ body {
 .social img{
   width: 30px;
   height: 30px;
+  object-fit: contain;
   border-radius: 20px;
 }
 /*BACKGROUND-STYLINGS*/
