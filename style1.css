@@ -161,7 +161,6 @@ body {
  
 }
 .social ul li{
- display: flex;
   list-style: none;
   margin: 4PX;
 }
