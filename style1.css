@@ -147,6 +147,7 @@ body {
  position: sticky;
   flex-wrap: wrap;
   gap: 0.1rem;
+ overflow: visible;
   max-width: 100%;
 }
 .social img{
