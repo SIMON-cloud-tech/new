@@ -59,7 +59,7 @@
     const center = (cardIndex + Math.floor(visible / 2)) % cards.length;
     cards.forEach((card, i) => {
       card.style.transition = "transform 0.5s ease";
-      card.style.transform = i === center ? "scale(1.08)" : "scale(1)";
+      card.style.transform = i === center ? "scale(1.19)" : "scale(1)";
       card.style.zIndex = i === center ? "1" : "0";
     });
   }
