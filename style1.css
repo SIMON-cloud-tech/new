@@ -149,12 +149,6 @@ body {
  font-style: italic;
   font-size: 30px;
 }
-.head h4 .supp{
-  color: black;
-}
-.head h4 .build{
-  color: black;
-}
 .social{
   display: flex;
   justify-content: center;
