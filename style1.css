@@ -559,6 +559,8 @@ form input, textarea{
     display: flex;
     margin-left: 2rem;
  }
+   .info ul{
+    display: flex;
   }
 
   /*VIDEOS SECTION*/
