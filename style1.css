@@ -555,6 +555,9 @@ form input, textarea{
     align-items: center;
     justify-content: center;
   }
+   .info{
+    display: flex;
+ }
   }
 
   /*VIDEOS SECTION*/
