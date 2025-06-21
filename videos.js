@@ -3,10 +3,14 @@ const videoElements = videoSlider.querySelectorAll("video");
 const scrollAmount = 300;
 let direction = 1;
 let isReversing = false;
+let autoSlide;
 
-// Start auto sliding
-let autoSlide = setInterval(slideVideos, 100);
+// Initiate auto-slide after load
+window.addEventListener("load", () => {
+  startAutoSlide();
+});
 
+// Sliding logic
 function slideVideos() {
   const maxScroll = videoSlider.scrollWidth - videoSlider.clientWidth;
 
@@ -23,20 +27,25 @@ function slideVideos() {
   }
 
   videoSlider.scrollBy({ left: scrollAmount * direction, behavior: "smooth" });
+  highlightCenterVideo();
+}
+
+function startAutoSlide() {
+  autoSlide = setInterval(slideVideos, 100);
 }
 
 function pauseBeforeNext() {
   clearInterval(autoSlide);
-  bounceScroll(direction); // Add bounce effect
+  bounceScroll(direction);
 
   setTimeout(() => {
-    autoSlide = setInterval(slideVideos, 100);
+    startAutoSlide();
     isReversing = false;
-  }, 1000); // Match bounce timing
+  }, 1000);
 }
 
 function bounceScroll(dir) {
-  const bounceSteps = [60, -30, 15, -8]; // Directional bounce sequence
+  const bounceSteps = [60, -30, 15, -8];
   let delay = 0;
 
   bounceSteps.forEach(step => {
@@ -46,7 +55,38 @@ function bounceScroll(dir) {
   });
 }
 
-// Click-to-play logic and hover pause/resume
+function highlightCenterVideo() {
+  const sliderCenter = videoSlider.scrollLeft + videoSlider.clientWidth / 2;
+  let closest = null;
+  let minDistance = Infinity;
+
+  videoElements.forEach(video => {
+    const videoCenter = video.offsetLeft + video.offsetWidth / 2;
+    const distance = Math.abs(sliderCenter - videoCenter);
+
+    if (distance < minDistance) {
+      minDistance = distance;
+      closest = video;
+    }
+
+    video.style.transform = "scale(1)";
+    video.pause();
+    video.muted = true;
+    video.classList.remove("active-video");
+  });
+
+  if (closest) {
+    closest.style.transform = "scale(1.15)";
+    closest.muted = true;
+
+    if (window.innerWidth > 1024) {
+      closest.play();
+      closest.classList.add("active-video");
+    }
+  }
+}
+
+// Click-to-play & hover pause logic
 videoElements.forEach((video, index) => {
   if (index === 0) {
     video.play();
@@ -71,19 +111,17 @@ videoElements.forEach((video, index) => {
   });
 
   video.addEventListener("mouseenter", () => clearInterval(autoSlide));
-  video.addEventListener("mouseleave", () => {
-    autoSlide = setInterval(slideVideos, 100);
-  });
+  video.addEventListener("mouseleave", () => startAutoSlide());
 });
 
-// Navigation buttons
+// Button Navigation
 document.querySelector(".prev").onclick = () =>
   videoSlider.scrollBy({ left: -scrollAmount, behavior: "smooth" });
 
 document.querySelector(".next").onclick = () =>
   videoSlider.scrollBy({ left: scrollAmount, behavior: "smooth" });
 
-// Swipe support
+// Swipe Navigation
 let startX = 0;
 videoSlider.addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
@@ -98,5 +136,5 @@ videoSlider.addEventListener("touchend", e => {
     videoSlider.scrollBy({ left: diff > 0 ? scrollAmount : -scrollAmount, behavior: "smooth" });
   }
 
-  autoSlide = setInterval(slideVideos, 100);
+  startAutoSlide();
 });

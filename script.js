@@ -27,56 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }, 2500);
 });
 
-
-//const videoSlider = document.getElementById("videoSlider");
-const videoElements = videoSlider.querySelectorAll("video");
-const scrollAmount = 300;
-let direction = 1; // 1 = forward, -1 = backward
-
-function slideVideos() {
-  const maxScroll = videoSlider.scrollWidth - videoSlider.clientWidth;
-  if (videoSlider.scrollLeft >= maxScroll) direction = -1;
-  else if (videoSlider.scrollLeft <= 0) direction = 1;
-
-  videoSlider.scrollBy({ left: scrollAmount * direction, behavior: "smooth" });
-}
-
-let autoSlide = setInterval(slideVideos, 100);
-
-videoElements.forEach(video => {
-  // Play/pause logic with active class toggle
-  video.addEventListener("click", () => {
-    videoElements.forEach(v => {
-      if (v !== video) {
-        v.pause();
-        v.classList.remove("active-video");
-      }
-    });
-
-    if (video.paused) {
-      video.play();
-      video.classList.add("active-video");
-    } else {
-      video.pause();
-      video.classList.remove("active-video");
-    }
-  });
-
-  // Pause/resume auto-slide on hover
-  video.addEventListener("mouseenter", () => clearInterval(autoSlide));
-  video.addEventListener("mouseleave", () => {
-    autoSlide = setInterval(slideVideos, 100);
-  });
-});
-
-// Manual scroll buttons
-document.querySelector(".prev").onclick = () =>
-  videoSlider.scrollBy({ left: -scrollAmount, behavior: "smooth" });
-
-document.querySelector(".next").onclick = () =>
-  videoSlider.scrollBy({ left: scrollAmount, behavior: "smooth" });
-
-
 // form//
 
 function sendToWhatsApp() {
@@ -99,3 +49,20 @@ document.querySelectorAll('video').forEach(video => {
   video.style.width = '320px';
   video.style.height = '180px';
 });
+
+
+//RESIZING SCREENS//
+// === Layout Stability Script for Mobile Devices ===
+function lockBodyLayout() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+
+  document.body.style.overscrollBehavior = "none";     // Prevent scroll bounce
+  document.body.style.position = "relative";           // Keep layout consistent
+  document.body.style.width = "100vw";                 // Avoid horizontal scroll
+  document.body.style.overflowX = "hidden";            // Lock horizontal overflow
+  document.body.style.minHeight = `${window.innerHeight}px`;  // Fill full height
+}
+
+window.addEventListener("load", lockBodyLayout);
+window.addEventListener("resize", lockBodyLayout);
