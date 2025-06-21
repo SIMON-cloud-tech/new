@@ -264,22 +264,52 @@ body {
 }
 .videos-container {
   display: flex;
+  gap: 16px;
   overflow-x: auto;
   scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  padding: 16px;
   width: 100%;
+  -webkit-overflow-scrolling: touch; /* iOS boost */
+  scrollbar-width: none; /* Firefox */
 }
 
-.videos-container video {
-  flex: 0 0 auto;
-  width: 100%;
-  border: 1px solid black;
-  max-height: 200px;
-  margin: 0.1rem;
-  max-width: 300px;
-  border-radius: 10px;
-  background-color: white;
-  margin-right: 10px;
+.videos-container::-webkit-scrollbar {
+  display: none; /* Chrome */
 }
+
+video {
+  flex: 0 0 auto;
+  width: 320px;
+  height: auto;
+  scroll-snap-align: start;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+video:hover {
+  transform: scale(1.03);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.active-video {
+  outline: 3px solid #4CAF50;
+  box-shadow: 0 0 0 4px #A5D6A7;
+}
+video {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.nav-buttons
 .active-video {
   outline: 3px solid #4CAF50; /* or any highlight you want */
   border-radius: 4px;
