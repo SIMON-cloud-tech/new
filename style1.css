@@ -471,12 +471,10 @@ button {
   list-style: none;
   padding: 5px;
   margin-right: 5px;
-  display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
   word-break: break-word;
-  align-items: center;
-  justify-content: center;
+  display: flex;
 }
 .info li img{
   width: 18px;
@@ -531,11 +529,11 @@ button {
 .contacts-container{
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
 }
 .form{
   width: 100%;
+  margin-left: 10%;
   margin-bottom: 1rem;
   border-radius: 3px;
 
@@ -562,6 +560,20 @@ form input, textarea{
     flex-direction: column;
     align-items: center;
     justify-content: center;
+  }
+  .log1{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: start;
+    justify-content: start;
+  }
+  .logoimage{
+    text-align: center;
+    margin-right: 0;
+  }
+  .info{
+    margin-top: 2rem;
+    margin-left: 0;
   }
   }
 

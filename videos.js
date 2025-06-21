@@ -5,12 +5,17 @@ let direction = 1;
 let isReversing = false;
 let autoSlide;
 
-// Initiate auto-slide after load
+// Auto-start everything
 window.addEventListener("load", () => {
   startAutoSlide();
+  highlightCenterVideo();
 });
 
-// Sliding logic
+// Autoslide logic
+function startAutoSlide() {
+  autoSlide = setInterval(slideVideos, 100);
+}
+
 function slideVideos() {
   const maxScroll = videoSlider.scrollWidth - videoSlider.clientWidth;
 
@@ -30,24 +35,18 @@ function slideVideos() {
   highlightCenterVideo();
 }
 
-function startAutoSlide() {
-  autoSlide = setInterval(slideVideos, 100);
-}
-
 function pauseBeforeNext() {
   clearInterval(autoSlide);
   bounceScroll(direction);
-
   setTimeout(() => {
     startAutoSlide();
     isReversing = false;
-  }, 1000);
+  }, 3000);
 }
 
 function bounceScroll(dir) {
   const bounceSteps = [60, -30, 15, -8];
   let delay = 0;
-
   bounceSteps.forEach(step => {
     setTimeout(() => {
       videoSlider.scrollBy({ left: dir * step, behavior: "smooth" });
@@ -55,6 +54,16 @@ function bounceScroll(dir) {
   });
 }
 
+// Determine color from filename
+function getGlowColor(src) {
+  if (src.includes("warm")) return "rgba(255, 200, 80, 0.7)";
+  if (src.includes("cool")) return "rgba(80, 180, 255, 0.5)";
+  if (src.includes("dark")) return "rgba(0, 0, 0, 0.5)";
+  if (src.includes("earth")) return "rgba(100, 70, 50, 0.5)";
+  return "rgba(0, 0, 0, 0.4)";
+}
+
+// Center video detection + focus
 function highlightCenterVideo() {
   const sliderCenter = videoSlider.scrollLeft + videoSlider.clientWidth / 2;
   let closest = null;
@@ -69,7 +78,9 @@ function highlightCenterVideo() {
       closest = video;
     }
 
+    // Reset all
     video.style.transform = "scale(1)";
+    video.style.boxShadow = "none";
     video.pause();
     video.muted = true;
     video.classList.remove("active-video");
@@ -78,19 +89,21 @@ function highlightCenterVideo() {
   if (closest) {
     closest.style.transform = "scale(1.15)";
     closest.muted = true;
+    closest.play();
+    closest.classList.add("active-video");
 
-    if (window.innerWidth > 1024) {
-      closest.play();
-      closest.classList.add("active-video");
-    }
+    const glowColor = getGlowColor(closest.src);
+    closest.style.boxShadow = `0 0 20px ${glowColor}`;
   }
 }
 
-// Click-to-play & hover pause logic
+// Manual interaction
 videoElements.forEach((video, index) => {
   if (index === 0) {
     video.play();
     video.classList.add("active-video");
+    video.style.transform = "scale(1.15)";
+    video.style.boxShadow = `0 0 20px ${getGlowColor(video.src)}`;
   }
 
   video.addEventListener("click", () => {
@@ -98,15 +111,21 @@ videoElements.forEach((video, index) => {
       if (v !== video) {
         v.pause();
         v.classList.remove("active-video");
+        v.style.boxShadow = "none";
+        v.style.transform = "scale(1)";
       }
     });
 
     if (video.paused) {
       video.play();
       video.classList.add("active-video");
+      video.style.transform = "scale(1.15)";
+      video.style.boxShadow = `0 0 20px ${getGlowColor(video.src)}`;
     } else {
       video.pause();
       video.classList.remove("active-video");
+      video.style.boxShadow = "none";
+      video.style.transform = "scale(1)";
     }
   });
 
@@ -114,14 +133,14 @@ videoElements.forEach((video, index) => {
   video.addEventListener("mouseleave", () => startAutoSlide());
 });
 
-// Button Navigation
+// Arrow nav
 document.querySelector(".prev").onclick = () =>
   videoSlider.scrollBy({ left: -scrollAmount, behavior: "smooth" });
 
 document.querySelector(".next").onclick = () =>
   videoSlider.scrollBy({ left: scrollAmount, behavior: "smooth" });
 
-// Swipe Navigation
+// Swipe
 let startX = 0;
 videoSlider.addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
