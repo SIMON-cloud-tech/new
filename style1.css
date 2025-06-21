@@ -554,14 +554,11 @@ form input, textarea{
     flex-direction: column;
     align-items: center;
     justify-content: center;
-   overfow: visible;
+ 
   }
    .info{
     display: flex;
     margin-left: 2rem;
- }
-   .info ul{
-    display: flex;
  }
   }
 
