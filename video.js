@@ -43,7 +43,7 @@ window.addEventListener('DOMContentLoaded', () => {
             currentIndex = visible;
             setPosition(true);
           }
-        }, 600);
+        }, 2600);
       }, 3500);
     }
   
