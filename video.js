@@ -1,43 +1,71 @@
-<script>
-  const slider = document.getElementById('videoSlider');
-  const videos = slider.querySelectorAll('video');
-  let currentIndex = 0;
-  let interval;
-  let isPaused = false;
-
-  function updateCenterVideo() {
-    videos.forEach((video, i) => {
-      video.classList.toggle('center', i === currentIndex);
+window.addEventListener('DOMContentLoaded', () => {
+    const slider = document.getElementById('videoSlider');
+    const originalVideos = Array.from(slider.children);
+    const getVisibleCount = () => {
+      const width = window.innerWidth;
+      if (width >= 1024) return 3;
+      if (width >= 768) return 2;
+      return 1;
+    };
+  
+    let visible = getVisibleCount();
+    let isPaused = false;
+    let currentIndex = visible;
+  
+    // Clone edges
+    const clonesBefore = originalVideos.slice(-visible).map(v => v.cloneNode(true));
+    const clonesAfter = originalVideos.slice(0, visible).map(v => v.cloneNode(true));
+  
+    clonesBefore.forEach(clone => slider.prepend(clone));
+    clonesAfter.forEach(clone => slider.append(clone));
+  
+    const allVideos = Array.from(slider.children);
+  
+    function setPosition(instant = false) {
+      const videoWidth = allVideos[currentIndex].offsetWidth + 10;
+      slider.style.transition = instant ? 'none' : 'transform 0.6s ease';
+      slider.style.transform = `translateX(-${videoWidth * currentIndex}px)`;
+  
+      allVideos.forEach((vid, i) => {
+        vid.classList.toggle('center', i === currentIndex);
+      });
+    }
+  
+    function loopSlide() {
+      return setInterval(() => {
+        if (isPaused) return;
+  
+        currentIndex++;
+        setPosition();
+  
+        setTimeout(() => {
+          if (currentIndex >= allVideos.length - visible) {
+            currentIndex = visible;
+            setPosition(true);
+          }
+        }, 600);
+      }, 3500);
+    }
+  
+    function pauseSlider() {
+      isPaused = true;
+      clearInterval(interval);
+    }
+  
+    let interval = loopSlide();
+  
+    allVideos.forEach(video => {
+      video.addEventListener('click', pauseSlider);
     });
-  }
-
-  function slideTo(index) {
-    const videoWidth = videos[index].offsetWidth + 10; // Include margin
-    slider.style.transform = `translateX(-${videoWidth * index}px)`;
-    currentIndex = index % videos.length;
-    updateCenterVideo();
-  }
-
-  function startAutoSlide() {
-    interval = setInterval(() => {
-      if (!isPaused) {
-        currentIndex = (currentIndex + 1) % videos.length;
-        slideTo(currentIndex);
-      }
-    }, 3000); // Adjust speed here
-  }
-
-  function pauseSlider() {
-    isPaused = true;
-    clearInterval(interval);
-  }
-
-  videos.forEach(video => {
-    video.addEventListener('click', pauseSlider);
+  
+    window.addEventListener('resize', () => {
+      clearInterval(interval);
+      visible = getVisibleCount();
+      currentIndex = visible;
+      setPosition(true);
+      interval = loopSlide();
+    });
+  
+    setPosition(true);
   });
-
-  // Optional: add arrow buttons and attach pauseSlider to them
-
-  startAutoSlide();
-  updateCenterVideo();
-</script>
+  
