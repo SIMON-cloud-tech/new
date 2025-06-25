@@ -2,12 +2,12 @@ window.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('videoSlider');
     const originalVideos = Array.from(slider.children);
     let visible = getVisibleCount();
-    let currentIndex = visible;
     let isPaused = false;
     let resumeTimeout;
     let interval;
+    let currentIndex = visible;
+    let direction = 1; // 1 = forward, -1 = backward
   
-    // Clone edges
     const clonesBefore = originalVideos.slice(-visible).map(v => v.cloneNode(true));
     const clonesAfter = originalVideos.slice(0, visible).map(v => v.cloneNode(true));
   
@@ -25,7 +25,7 @@ window.addEventListener('DOMContentLoaded', () => {
   
     function setPosition(instant = false) {
       const videoWidth = allVideos[currentIndex].offsetWidth + 10;
-      slider.style.transition = instant ? 'none' : 'transform 0.6s ease';
+      slider.style.transition = instant ? 'none' : 'transform 1s ease-in-out';
       slider.style.transform = `translateX(-${videoWidth * currentIndex}px)`;
   
       allVideos.forEach((vid, i) => {
@@ -37,16 +37,19 @@ window.addEventListener('DOMContentLoaded', () => {
       return setInterval(() => {
         if (isPaused) return;
   
-        currentIndex++;
+        currentIndex += direction;
         setPosition();
   
         setTimeout(() => {
           if (currentIndex >= allVideos.length - visible) {
             currentIndex = visible;
             setPosition(true);
+          } else if (currentIndex <= 0) {
+            currentIndex = allVideos.length - (2 * visible);
+            setPosition(true);
           }
-        }, 600);
-      }, 3500);
+        }, 1000); // match transition
+      }, 4000); // slower and smoother
     }
   
     function pauseSlider() {
@@ -56,14 +59,14 @@ window.addEventListener('DOMContentLoaded', () => {
       resumeTimeout = setTimeout(() => {
         isPaused = false;
         interval = loopSlide();
-      }, 10000); // resume after 10 seconds
+      }, 10000);
     }
   
     allVideos.forEach((video, index) => {
       video.addEventListener('click', () => {
         pauseSlider();
-  
         if (index !== currentIndex) {
+          direction = index > currentIndex ? 1 : -1;
           currentIndex = index;
           setPosition();
         }
@@ -74,15 +77,12 @@ window.addEventListener('DOMContentLoaded', () => {
       clearInterval(interval);
       visible = getVisibleCount();
       currentIndex = visible;
-  
-      // Recalculate clones (optional: reload page for full rebuild)
       setTimeout(() => {
         setPosition(true);
         interval = loopSlide();
       }, 300);
     });
   
-    // Initialize
     setPosition(true);
     interval = loopSlide();
   });
