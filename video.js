@@ -1,16 +1,11 @@
 window.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('videoSlider');
     const originalVideos = Array.from(slider.children);
-    const getVisibleCount = () => {
-      const width = window.innerWidth;
-      if (width >= 1024) return 3;
-      if (width >= 768) return 2;
-      return 1;
-    };
-  
     let visible = getVisibleCount();
-    let isPaused = false;
     let currentIndex = visible;
+    let isPaused = false;
+    let resumeTimeout;
+    let interval;
   
     // Clone edges
     const clonesBefore = originalVideos.slice(-visible).map(v => v.cloneNode(true));
@@ -20,6 +15,13 @@ window.addEventListener('DOMContentLoaded', () => {
     clonesAfter.forEach(clone => slider.append(clone));
   
     const allVideos = Array.from(slider.children);
+  
+    function getVisibleCount() {
+      const width = window.innerWidth;
+      if (width >= 1024) return 3;
+      if (width >= 768) return 2;
+      return 1;
+    }
   
     function setPosition(instant = false) {
       const videoWidth = allVideos[currentIndex].offsetWidth + 10;
@@ -43,29 +45,45 @@ window.addEventListener('DOMContentLoaded', () => {
             currentIndex = visible;
             setPosition(true);
           }
-        }, 2600);
+        }, 600);
       }, 3500);
     }
   
     function pauseSlider() {
       isPaused = true;
       clearInterval(interval);
+      clearTimeout(resumeTimeout);
+      resumeTimeout = setTimeout(() => {
+        isPaused = false;
+        interval = loopSlide();
+      }, 10000); // resume after 10 seconds
     }
   
-    let interval = loopSlide();
+    allVideos.forEach((video, index) => {
+      video.addEventListener('click', () => {
+        pauseSlider();
   
-    allVideos.forEach(video => {
-      video.addEventListener('click', pauseSlider);
+        if (index !== currentIndex) {
+          currentIndex = index;
+          setPosition();
+        }
+      });
     });
   
     window.addEventListener('resize', () => {
       clearInterval(interval);
       visible = getVisibleCount();
       currentIndex = visible;
-      setPosition(true);
-      interval = loopSlide();
+  
+      // Recalculate clones (optional: reload page for full rebuild)
+      setTimeout(() => {
+        setPosition(true);
+        interval = loopSlide();
+      }, 300);
     });
   
+    // Initialize
     setPosition(true);
+    interval = loopSlide();
   });
   
