@@ -1,4 +1,3 @@
-
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.querySelector("#videoSlider");
   let currentIndex = 0;
