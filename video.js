@@ -1,75 +1,73 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const container = document.querySelector("#videoSlider");
-  let currentIndex = 0;
+(function () {
+  const track = document.getElementById("videoSlider");
+  const videos = [...track.querySelectorAll("video")];
+  let videoIndex = 0;
   let direction = 1;
-  let visibleCount = getVisibleCount();
-  let videos = Array.from(container.children);
-  let auto = null;
-
-  function duplicateVideos() {
-    const clones = videos.map(v => v.cloneNode(true));
-    clones.forEach(clone => container.appendChild(clone));
-    videos = Array.from(container.children);
-  }
+  let autoSlide;
 
   function getVisibleCount() {
-    const w = window.innerWidth;
-    if (w >= 992) return 3;
-    if (w >= 600) return 2;
+    if (window.innerWidth >= 1024) return 3;
+    if (window.innerWidth >= 768) return 2;
     return 1;
   }
 
-  function slide(forcedDir = null) {
-    if (forcedDir !== null) direction = forcedDir;
-    currentIndex += direction;
-    if (currentIndex + visibleCount >= videos.length) currentIndex = 0;
-    if (currentIndex < 0) currentIndex = videos.length - visibleCount;
+  function scaleCenter() {
+    const visible = getVisibleCount();
+    const center = (videoIndex + Math.floor(visible / 2)) % videos.length;
+    videos.forEach((video, i) => {
+      video.style.transition = "transform 0.5s ease, opacity 0.4s ease";
+      video.style.transform = i === center ? "scale(1.18)" : "scale(1)";
+      video.style.opacity = i === center ? "1" : "0.5";
+      video.style.zIndex = i === center ? "1" : "0";
+    });
+  }
 
-    const slideWidth = videos[0].offsetWidth + 20;
-    container.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
-
-    videos.forEach(v => v.classList.remove("active"));
-    const center = currentIndex + Math.floor(visibleCount / 2);
-    if (videos[center]) videos[center].classList.add("active");
+  function updateScroll() {
+    const cardWidth = videos[0].offsetWidth + 20;
+    track.scrollTo({ left: cardWidth * videoIndex, behavior: "smooth" });
+    scaleCenter();
   }
 
   function startAutoSlide() {
-    if (auto) clearInterval(auto);
-    auto = setInterval(() => slide(), 3500);
+    autoSlide = setInterval(() => {
+      const maxIndex = videos.length - getVisibleCount();
+      videoIndex += direction;
+      if (videoIndex >= maxIndex || videoIndex <= 0) {
+        direction *= -1;
+        videoIndex = Math.max(0, Math.min(maxIndex, videoIndex));
+      }
+      updateScroll();
+    }, 3500);
   }
 
-  function stopAutoSlide() {
-    if (auto) clearInterval(auto);
-    auto = null;
+  function resetAutoSlide() {
+    clearInterval(autoSlide);
+    startAutoSlide();
   }
 
-  // Swipe detection with immediate directional slide
+  // Swipe detection
   let startX = 0;
-  container.addEventListener("touchstart", e => {
+  track.addEventListener("touchstart", e => {
     startX = e.touches[0].clientX;
   });
 
-  container.addEventListener("touchend", e => {
-    const dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) > 30) {
-      const newDir = dx < 0 ? 1 : -1;
-      stopAutoSlide();
-      slide(newDir); // immediately apply direction
-      startAutoSlide();
+  track.addEventListener("touchend", e => {
+    const diff = e.changedTouches[0].clientX - startX;
+    if (Math.abs(diff) > 50) {
+      direction = diff < 0 ? 1 : -1;
+      videoIndex = (videoIndex + direction + videos.length) % videos.length;
+      updateScroll();
+      resetAutoSlide();
     }
   });
 
-  // Pause auto-slide when video is interacted with
-  container.addEventListener("click", e => {
-    if (e.target.tagName === "VIDEO") stopAutoSlide();
-  });
+  // Pause on hover or play
+  track.addEventListener("mouseenter", () => clearInterval(autoSlide));
+  track.addEventListener("mouseleave", startAutoSlide);
+  videos.forEach(video => video.addEventListener("play", () => clearInterval(autoSlide)));
 
-  window.addEventListener("resize", () => {
-    visibleCount = getVisibleCount();
-    slide();
-  });
-
-  duplicateVideos();
-  slide();
+  window.addEventListener("resize", updateScroll);
+  updateScroll();
   startAutoSlide();
-});
+})();
+    
