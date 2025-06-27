@@ -1,89 +1,83 @@
-window.addEventListener('DOMContentLoaded', () => {
-    const slider = document.getElementById('videoSlider');
-    const originalVideos = Array.from(slider.children);
-    let visible = getVisibleCount();
-    let isPaused = false;
-    let resumeTimeout;
-    let interval;
-    let currentIndex = visible;
-    let direction = 1; // 1 = forward, -1 = backward
-  
-    const clonesBefore = originalVideos.slice(-visible).map(v => v.cloneNode(true));
-    const clonesAfter = originalVideos.slice(0, visible).map(v => v.cloneNode(true));
-  
-    clonesBefore.forEach(clone => slider.prepend(clone));
-    clonesAfter.forEach(clone => slider.append(clone));
-  
-    const allVideos = Array.from(slider.children);
-  
-    function getVisibleCount() {
-      const width = window.innerWidth;
-      if (width >= 1024) return 3;
-      if (width >= 768) return 2;
-      return 1;
-    }
-  
-    function setPosition(instant = false) {
-      const videoWidth = allVideos[currentIndex].offsetWidth + 10;
-      slider.style.transition = instant ? 'none' : 'transform 1s ease-in-out';
-      slider.style.transform = `translateX(-${videoWidth * currentIndex}px)`;
-  
-      allVideos.forEach((vid, i) => {
-        vid.classList.toggle('center', i === currentIndex);
-      });
-    }
-  
-    function loopSlide() {
-      return setInterval(() => {
-        if (isPaused) return;
-  
-        currentIndex += direction;
-        setPosition();
-  
-        setTimeout(() => {
-          if (currentIndex >= allVideos.length - visible) {
-            currentIndex = visible;
-            setPosition(true);
-          } else if (currentIndex <= 0) {
-            currentIndex = allVideos.length - (2 * visible);
-            setPosition(true);
-          }
-        }, 1000); // match transition
-      }, 4000); // slower and smoother
-    }
-  
-    function pauseSlider() {
-      isPaused = true;
-      clearInterval(interval);
-      clearTimeout(resumeTimeout);
-      resumeTimeout = setTimeout(() => {
-        isPaused = false;
-        interval = loopSlide();
-      }, 10000);
-    }
-  
-    allVideos.forEach((video, index) => {
-      video.addEventListener('click', () => {
-        pauseSlider();
-        if (index !== currentIndex) {
-          direction = index > currentIndex ? 1 : -1;
-          currentIndex = index;
-          setPosition();
-        }
-      });
-    });
-  
-    window.addEventListener('resize', () => {
-      clearInterval(interval);
-      visible = getVisibleCount();
-      currentIndex = visible;
-      setTimeout(() => {
-        setPosition(true);
-        interval = loopSlide();
-      }, 300);
-    });
-  
-    setPosition(true);
-    interval = loopSlide();
+// 🎞️ Infinite Auto-Sliding Bidirectional Video Carousel (Final JS with Pause on Click)
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.querySelector("#videoSlider");
+  let currentIndex = 0;
+  let direction = 1;
+  let visibleCount = getVisibleCount();
+  let videos = Array.from(container.children);
+  let auto = null;
+
+  // Duplicate videos to allow infinite loop
+  function duplicateVideos() {
+    const clones = videos.map(v => v.cloneNode(true));
+    clones.forEach(clone => container.appendChild(clone));
+    videos = Array.from(container.children);
+  }
+
+  // Determine how many videos to show based on screen width
+  function getVisibleCount() {
+    const w = window.innerWidth;
+    if (w >= 992) return 3;
+    if (w >= 600) return 2;
+    return 1;
+  }
+
+  // Move the carousel and zoom the central video
+  function slide() {
+    currentIndex += direction;
+    if (currentIndex + visibleCount >= videos.length) currentIndex = 0;
+    if (currentIndex < 0) currentIndex = videos.length - visibleCount;
+
+    const slideWidth = videos[0].offsetWidth + 20; // includes gap
+    container.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+
+    videos.forEach(v => v.classList.remove("active"));
+    const center = currentIndex + Math.floor(visibleCount / 2);
+    if (videos[center]) videos[center].classList.add("active");
+  }
+
+  // Start auto-slide
+  function startAutoSlide() {
+    if (auto) clearInterval(auto);
+    auto = setInterval(slide, 3500);
+  }
+
+  // Stop auto-slide
+  function stopAutoSlide() {
+    if (auto) clearInterval(auto);
+    auto = null;
+  }
+
+  // Handle swipe gestures
+  let startX = 0;
+  container.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
   });
+  container.addEventListener("touchend", e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    direction = dx < 0 ? 1 : -1;
+    stopAutoSlide();
+    slide();
+    startAutoSlide();
+  });
+
+  // Pause auto-slide when a video is clicked
+  container.addEventListener("click", e => {
+    if (e.target.tagName === "VIDEO") {
+      stopAutoSlide();
+    }
+  });
+
+  // Update visible count and re-render on resize
+  window.addEventListener("resize", () => {
+    visibleCount = getVisibleCount();
+    slide();
+  });
+
+  // Initialize
+  duplicateVideos();
+  slide();
+  startAutoSlide();
+});
+
   
