@@ -1,74 +1,104 @@
 (function () {
-  const track = document.getElementById("videoSlider");
-  const videos = [...track.querySelectorAll("video")];
-  let videoIndex = 0;
+  const container = document.getElementById("videoSlider");
+  const videos = [...container.querySelectorAll("video")];
+  let currentIndex = 0;
   let direction = 1;
-  let autoSlide;
+  let interval = null;
 
+  // --- Utility: how many videos to show at a time based on screen width
   function getVisibleCount() {
-    if (window.innerWidth >= 1024) return 3;
-    if (window.innerWidth >= 768) return 2;
+    const width = window.innerWidth;
+    if (width >= 1024) return 3;
+    if (width >= 768) return 2;
     return 1;
   }
 
-  function scaleCenter() {
+  // --- Highlight and autoplay the center video
+  function highlightCenter() {
     const visible = getVisibleCount();
-    const center = (videoIndex + Math.floor(visible / 2)) % videos.length;
+    const centerIndex = currentIndex + Math.floor(visible / 2);
+
     videos.forEach((video, i) => {
-      video.style.transition = "transform 0.5s ease, opacity 0.4s ease";
-      video.style.transform = i === center ? "scale(1.18)" : "scale(1)";
-      video.style.opacity = i === center ? "1" : "0.5";
-      video.style.zIndex = i === center ? "1" : "0";
+      video.style.transition = "transform 0.7s ease, opacity 0.7s ease, border 0.7s ease";
+      video.style.transform = "scale(1)";
+      video.style.opacity = "0.5";
+      video.style.border = "none";
+      video.muted = true;
+
+      if (i === centerIndex) {
+        video.style.transform = "scale(1.15)";
+        video.style.opacity = "1";
+        video.style.border = "4px solid #3399ff";
+        if (video.paused) video.play().catch(() => {});
+      } else {
+        video.pause();
+      }
     });
   }
 
-  function updateScroll() {
-    const cardWidth = videos[0].offsetWidth + 20;
-    track.scrollTo({ left: cardWidth * videoIndex, behavior: "smooth" });
-    scaleCenter();
+  // --- Slide videos in direction (+1 or -1)
+  function slide(forcedDirection = null) {
+    if (forcedDirection !== null) direction = forcedDirection;
+
+    currentIndex += direction;
+    const maxIndex = videos.length - getVisibleCount();
+
+    // Bounce back when reaching either end
+    if (currentIndex > maxIndex) {
+      currentIndex = maxIndex;
+      direction = -1;
+    } else if (currentIndex < 0) {
+      currentIndex = 0;
+      direction = 1;
+    }
+
+    const slideWidth = videos[0].offsetWidth + 20;
+    container.style.transition = "transform 2.4s ease-in-out";
+    container.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
+
+    highlightCenter();
   }
 
+  // --- Start auto sliding
   function startAutoSlide() {
-    autoSlide = setInterval(() => {
-      const maxIndex = videos.length - getVisibleCount();
-      videoIndex += direction;
-      if (videoIndex >= maxIndex || videoIndex <= 0) {
-        direction *= -1;
-        videoIndex = Math.max(0, Math.min(maxIndex, videoIndex));
-      }
-      updateScroll();
-    }, 3500);
+    if (interval) clearInterval(interval);
+    interval = setInterval(() => slide(), 7000); // slow and smooth
   }
 
-  function resetAutoSlide() {
-    clearInterval(autoSlide);
-    startAutoSlide();
+  // --- Stop sliding temporarily
+  function stopAutoSlide() {
+    clearInterval(interval);
+    interval = null;
   }
 
-  // Swipe detection
-  let startX = 0;
-  track.addEventListener("touchstart", e => {
-    startX = e.touches[0].clientX;
+  // --- Respond to swipe gestures
+  let touchStartX = 0;
+  container.addEventListener("touchstart", e => {
+    touchStartX = e.touches[0].clientX;
   });
 
-  track.addEventListener("touchend", e => {
-    const diff = e.changedTouches[0].clientX - startX;
-    if (Math.abs(diff) > 50) {
-      direction = diff < 0 ? 1 : -1;
-      videoIndex = (videoIndex + direction + videos.length) % videos.length;
-      updateScroll();
-      resetAutoSlide();
+  container.addEventListener("touchend", e => {
+    const delta = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(delta) > 50) {
+      stopAutoSlide();
+      slide(delta < 0 ? 1 : -1); // left swipe = forward, right swipe = backward
+      startAutoSlide();
     }
   });
 
-  // Pause on hover or play
-  track.addEventListener("mouseenter", () => clearInterval(autoSlide));
-  track.addEventListener("mouseleave", startAutoSlide);
-  videos.forEach(video => video.addEventListener("play", () => clearInterval(autoSlide)));
+  // --- On hover, pause autoplay
+  container.addEventListener("mouseenter", stopAutoSlide);
+  container.addEventListener("mouseleave", startAutoSlide);
 
-  window.addEventListener("resize", updateScroll);
-  updateScroll();
+  // --- On window resize, rescale and realign
+  window.addEventListener("resize", () => {
+    highlightCenter();
+    slide(0);
+  });
+
+  // --- Init
+  highlightCenter();
+  slide(0);
   startAutoSlide();
 })();
 
-    
