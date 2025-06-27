@@ -1,4 +1,4 @@
-// 🎞️ Infinite Auto-Sliding Bidirectional Video Carousel (Final JS with Pause on Click)
+
 document.addEventListener("DOMContentLoaded", () => {
   const container = document.querySelector("#videoSlider");
   let currentIndex = 0;
@@ -7,14 +7,12 @@ document.addEventListener("DOMContentLoaded", () => {
   let videos = Array.from(container.children);
   let auto = null;
 
-  // Duplicate videos to allow infinite loop
   function duplicateVideos() {
     const clones = videos.map(v => v.cloneNode(true));
     clones.forEach(clone => container.appendChild(clone));
     videos = Array.from(container.children);
   }
 
-  // Determine how many videos to show based on screen width
   function getVisibleCount() {
     const w = window.innerWidth;
     if (w >= 992) return 3;
@@ -22,13 +20,13 @@ document.addEventListener("DOMContentLoaded", () => {
     return 1;
   }
 
-  // Move the carousel and zoom the central video
-  function slide() {
+  function slide(forcedDir = null) {
+    if (forcedDir !== null) direction = forcedDir;
     currentIndex += direction;
     if (currentIndex + visibleCount >= videos.length) currentIndex = 0;
     if (currentIndex < 0) currentIndex = videos.length - visibleCount;
 
-    const slideWidth = videos[0].offsetWidth + 20; // includes gap
+    const slideWidth = videos[0].offsetWidth + 20;
     container.style.transform = `translateX(-${currentIndex * slideWidth}px)`;
 
     videos.forEach(v => v.classList.remove("active"));
@@ -36,48 +34,43 @@ document.addEventListener("DOMContentLoaded", () => {
     if (videos[center]) videos[center].classList.add("active");
   }
 
-  // Start auto-slide
   function startAutoSlide() {
     if (auto) clearInterval(auto);
-    auto = setInterval(slide, 3500);
+    auto = setInterval(() => slide(), 3500);
   }
 
-  // Stop auto-slide
   function stopAutoSlide() {
     if (auto) clearInterval(auto);
     auto = null;
   }
 
-  // Handle swipe gestures
+  // Swipe detection with immediate directional slide
   let startX = 0;
   container.addEventListener("touchstart", e => {
     startX = e.touches[0].clientX;
   });
+
   container.addEventListener("touchend", e => {
     const dx = e.changedTouches[0].clientX - startX;
-    direction = dx < 0 ? 1 : -1;
-    stopAutoSlide();
-    slide();
-    startAutoSlide();
-  });
-
-  // Pause auto-slide when a video is clicked
-  container.addEventListener("click", e => {
-    if (e.target.tagName === "VIDEO") {
+    if (Math.abs(dx) > 30) {
+      const newDir = dx < 0 ? 1 : -1;
       stopAutoSlide();
+      slide(newDir); // immediately apply direction
+      startAutoSlide();
     }
   });
 
-  // Update visible count and re-render on resize
+  // Pause auto-slide when video is interacted with
+  container.addEventListener("click", e => {
+    if (e.target.tagName === "VIDEO") stopAutoSlide();
+  });
+
   window.addEventListener("resize", () => {
     visibleCount = getVisibleCount();
     slide();
   });
 
-  // Initialize
   duplicateVideos();
   slide();
   startAutoSlide();
 });
-
-  
