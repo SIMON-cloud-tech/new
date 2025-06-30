@@ -1,159 +1,80 @@
-const videoSlider = document.getElementById("videoSlider");
-const videoElements = videoSlider.querySelectorAll("video");
-const scrollAmount = 300;
+// === Responsive Video Carousel by Prestige Web Room ===
+
+const track = document.querySelector('.slider-track');
+const videos = track.querySelectorAll('video');
+const nextBtn = document.querySelector('.nav.next');
+const prevBtn = document.querySelector('.nav.prev');
+
+let index = 0;
 let direction = 1;
-let isReversing = false;
-let autoSlide;
+const total = videos.length;
+let swipeStartX = 0;
 
-// Auto-start everything
-window.addEventListener("load", () => {
-  startAutoSlide();
-  highlightCenterVideo();
-});
-
-// Autoslide logic
-function startAutoSlide() {
-  autoSlide = setInterval(slideVideos, 100);
+// Get # of visible videos based on screen width
+function getVisibleCount() {
+  if (window.innerWidth >= 900) return 3;
+  if (window.innerWidth >= 700) return 2;
+  return 1;
 }
 
-function slideVideos() {
-  const maxScroll = videoSlider.scrollWidth - videoSlider.clientWidth;
+// Update position and center zoom
+function updateSlider() {
+  const visible = getVisibleCount();
+  index = Math.max(0, Math.min(index, total - visible)); // clamp
+  const offset = index * (100 / visible);
+  track.style.transform = `translateX(-${offset}%)`;
 
-  if (videoSlider.scrollLeft >= maxScroll && direction === 1 && !isReversing) {
-    direction = -1;
-    isReversing = true;
-    pauseBeforeNext();
-    return;
-  } else if (videoSlider.scrollLeft <= 0 && direction === -1 && !isReversing) {
-    direction = 1;
-    isReversing = true;
-    pauseBeforeNext();
-    return;
-  }
-
-  videoSlider.scrollBy({ left: scrollAmount * direction, behavior: "smooth" });
-  highlightCenterVideo();
-}
-
-function pauseBeforeNext() {
-  clearInterval(autoSlide);
-  bounceScroll(direction);
-  setTimeout(() => {
-    startAutoSlide();
-    isReversing = false;
-  }, 3000);
-}
-
-function bounceScroll(dir) {
-  const bounceSteps = [60, -30, 15, -8];
-  let delay = 0;
-  bounceSteps.forEach(step => {
-    setTimeout(() => {
-      videoSlider.scrollBy({ left: dir * step, behavior: "smooth" });
-    }, delay += 100);
-  });
-}
-
-// Determine color from filename
-function getGlowColor(src) {
-  if (src.includes("warm")) return "rgba(255, 200, 80, 0.7)";
-  if (src.includes("cool")) return "rgba(80, 180, 255, 0.5)";
-  if (src.includes("dark")) return "rgba(0, 0, 0, 0.5)";
-  if (src.includes("earth")) return "rgba(100, 70, 50, 0.5)";
-  return "rgba(0, 0, 0, 0.4)";
-}
-
-// Center video detection + focus
-function highlightCenterVideo() {
-  const sliderCenter = videoSlider.scrollLeft + videoSlider.clientWidth / 2;
-  let closest = null;
-  let minDistance = Infinity;
-
-  videoElements.forEach(video => {
-    const videoCenter = video.offsetLeft + video.offsetWidth / 2;
-    const distance = Math.abs(sliderCenter - videoCenter);
-
-    if (distance < minDistance) {
-      minDistance = distance;
-      closest = video;
-    }
-
-    // Reset all
-    video.style.transform = "scale(1)";
-    video.style.boxShadow = "none";
-    video.pause();
-    video.muted = true;
-    video.classList.remove("active-video");
-  });
-
-  if (closest) {
-    closest.style.transform = "scale(1.15)";
-    closest.muted = true;
-    closest.play();
-    closest.classList.add("active-video");
-
-    const glowColor = getGlowColor(closest.src);
-    closest.style.boxShadow = `0 0 20px ${glowColor}`;
+  videos.forEach(v => v.classList.remove('center'));
+  const centerIndex = index + Math.floor(visible / 2);
+  const centerVideo = videos[centerIndex];
+  if (centerVideo) {
+    centerVideo.classList.add('center');
+    centerVideo.play().catch(() => {});
   }
 }
 
-// Manual interaction
-videoElements.forEach((video, index) => {
-  if (index === 0) {
-    video.play();
-    video.classList.add("active-video");
-    video.style.transform = "scale(1.15)";
-    video.style.boxShadow = `0 0 20px ${getGlowColor(video.src)}`;
-  }
+// Autoplay with direction awareness
+function autoSlide() {
+  const visible = getVisibleCount();
 
-  video.addEventListener("click", () => {
-    videoElements.forEach(v => {
-      if (v !== video) {
-        v.pause();
-        v.classList.remove("active-video");
-        v.style.boxShadow = "none";
-        v.style.transform = "scale(1)";
-      }
-    });
+  if (index >= total - visible) direction = -1;
+  if (index <= 0) direction = 1;
 
-    if (video.paused) {
-      video.play();
-      video.classList.add("active-video");
-      video.style.transform = "scale(1.15)";
-      video.style.boxShadow = `0 0 20px ${getGlowColor(video.src)}`;
-    } else {
-      video.pause();
-      video.classList.remove("active-video");
-      video.style.boxShadow = "none";
-      video.style.transform = "scale(1)";
-    }
-  });
+  index += direction;
+  updateSlider();
+}
 
-  video.addEventListener("mouseenter", () => clearInterval(autoSlide));
-  video.addEventListener("mouseleave", () => startAutoSlide());
-});
+// Manual navigation (next/prev)
+function manualSlide(newDirection) {
+  const visible = getVisibleCount();
+  direction = newDirection;
+  index += direction;
 
-// Arrow nav
-document.querySelector(".prev").onclick = () =>
-  videoSlider.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+  index = Math.max(0, Math.min(index, total - visible));
+  updateSlider();
+}
 
-document.querySelector(".next").onclick = () =>
-  videoSlider.scrollBy({ left: scrollAmount, behavior: "smooth" });
+// Touch swipe handler
+function handleSwipeStart(e) {
+  swipeStartX = e.touches[0].clientX;
+}
 
-// Swipe
-let startX = 0;
-videoSlider.addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-  clearInterval(autoSlide);
-});
-
-videoSlider.addEventListener("touchend", e => {
+function handleSwipeEnd(e) {
   const endX = e.changedTouches[0].clientX;
-  const diff = startX - endX;
-
-  if (Math.abs(diff) > 50) {
-    videoSlider.scrollBy({ left: diff > 0 ? scrollAmount : -scrollAmount, behavior: "smooth" });
+  const delta = endX - swipeStartX;
+  if (Math.abs(delta) > 50) {
+    const swipeDir = delta > 0 ? -1 : 1;
+    manualSlide(swipeDir); // ⬅️ ➡️ respected
   }
+}
 
-  startAutoSlide();
-});
+// Event bindings
+nextBtn.addEventListener('click', () => manualSlide(1));
+prevBtn.addEventListener('click', () => manualSlide(-1));
+track.addEventListener('touchstart', handleSwipeStart);
+track.addEventListener('touchend', handleSwipeEnd);
+window.addEventListener('resize', updateSlider);
+
+// Start carousel
+updateSlider();
+setInterval(autoSlide, 6000);
