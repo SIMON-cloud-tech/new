@@ -1,94 +1,80 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const container = document.getElementById("videoSlider");
-  const videos = Array.from(container.querySelectorAll("video"));
-  const nextBtn = document.querySelector(".next");
-  const prevBtn = document.querySelector(".prev");
+// === Responsive Video Carousel by Prestige Web Room ===
 
-  let currentIndex = 0;
-  let autoplayDirection = 1;
-  let autoplayInterval;
+const track = document.querySelector('.slider-track');
+const videos = track.querySelectorAll('video');
+const nextBtn = document.querySelector('.nav.next');
+const prevBtn = document.querySelector('.nav.prev');
 
-  /** Calculate how many videos are visible per view */
-  function getVideosPerView() {
-    const width = window.innerWidth;
-    if (width >= 1024) return 3;
-    if (width >= 600) return 2;
-    return 1;
+let index = 0;
+let direction = 1;
+const total = videos.length;
+let swipeStartX = 0;
+
+// Get # of visible videos based on screen width
+function getVisibleCount() {
+  if (window.innerWidth >= 900) return 3;
+  if (window.innerWidth >= 700) return 2;
+  return 1;
+}
+
+// Update position and center zoom
+function updateSlider() {
+  const visible = getVisibleCount();
+  index = Math.max(0, Math.min(index, total - visible)); // clamp
+  const offset = index * (100 / visible);
+  track.style.transform = `translateX(-${offset}%)`;
+
+  videos.forEach(v => v.classList.remove('center'));
+  const centerIndex = index + Math.floor(visible / 2);
+  const centerVideo = videos[centerIndex];
+  if (centerVideo) {
+    centerVideo.classList.add('center');
+    centerVideo.play().catch(() => {});
   }
+}
 
-  let videosPerView = getVideosPerView();
+// Autoplay with direction awareness
+function autoSlide() {
+  const visible = getVisibleCount();
 
-  /** Scroll to a specific index and highlight it */
-  function scrollToIndex(index) {
-    const video = videos[index];
-    if (!video) return;
+  if (index >= total - visible) direction = -1;
+  if (index <= 0) direction = 1;
 
-    const offset = video.offsetLeft - (container.clientWidth - video.clientWidth) / 2;
-    container.scrollTo({ left: offset, behavior: "smooth" });
+  index += direction;
+  updateSlider();
+}
 
-    videos.forEach((v, i) => {
-      v.classList.toggle("active-video", i === index);
-    });
+// Manual navigation (next/prev)
+function manualSlide(newDirection) {
+  const visible = getVisibleCount();
+  direction = newDirection;
+ index += direction;
+
+  index = Math.max(0, Math.min(index, total - visible));
+  updateSlider();
+}
+
+// Touch swipe handler
+function handleSwipeStart(e) {
+  swipeStartX = e.touches[0].clientX;
+}
+
+function handleSwipeEnd(e) {
+  const endX = e.changedTouches[0].clientX;
+  const delta = endX - swipeStartX;
+  if (Math.abs(delta) > 50) {
+    const swipeDir = delta > 0 ? -1 : 1;
+    manualSlide(swipeDir); // ⬅️ ➡️ respected
   }
+}
 
-  /** Navigation logic */
-  function goNext() {
-    currentIndex = (currentIndex + 1) % videos.length;
-    scrollToIndex(currentIndex);
-  }
+// Event bindings
+nextBtn.addEventListener('click', () => manualSlide(1));
+prevBtn.addEventListener('click', () => manualSlide(-1));
+track.addEventListener('touchstart', handleSwipeStart);
+track.addEventListener('touchend', handleSwipeEnd);
+window.addEventListener('resize', updateSlider);
 
-  function goPrev() {
-    currentIndex = (currentIndex - 1 + videos.length) % videos.length;
-    scrollToIndex(currentIndex);
-  }
-
-  /** Autoplay carousel with directional awareness */
-  function startAutoplay() {
-    clearInterval(autoplayInterval);
-    autoplayInterval = setInterval(() => {
-      if (
-        currentIndex + autoplayDirection >= videos.length ||
-        currentIndex + autoplayDirection < 0
-      ) {
-        autoplayDirection *= -1;
-      }
-      currentIndex += autoplayDirection;
-      scrollToIndex(currentIndex);
-    }, 4000); // Adjust loop speed here
-  }
-
-  /** Manual navigation triggers */
-  nextBtn.addEventListener("click", () => {
-    goNext();
-    startAutoplay();
-  });
-
-  prevBtn.addEventListener("click", () => {
-    goPrev();
-    startAutoplay();
-  });
-
-  /** Handle swipe gestures for touch devices */
-  let touchStartX = 0;
-
-  container.addEventListener("touchstart", (e) => {
-    touchStartX = e.touches[0].clientX;
-  });
-
-  container.addEventListener("touchend", (e) => {
-    const deltaX = e.changedTouches[0].clientX - touchStartX;
-    if (deltaX > 50) goPrev();
-    else if (deltaX < -50) goNext();
-    startAutoplay();
-  });
-
-  /** Recompute layout on resize */
-  window.addEventListener("resize", () => {
-    videosPerView = getVideosPerView();
-    scrollToIndex(currentIndex);
-  });
-
-  /** Initialize everything */
-  scrollToIndex(currentIndex);
-  startAutoplay();
-});
+// Start carousel
+updateSlider();
+setInterval(autoSlide, 6000);
