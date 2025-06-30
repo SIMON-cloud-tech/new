@@ -247,30 +247,32 @@ body {
   padding: 5px;
 }
 .videos-container {
+.videos-container {
   display: flex;
-  gap: 16px;
+  gap: 24px;
   overflow-x: auto;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
-  padding: 16px;
+  padding: 20px;
   width: 100%;
-  -webkit-overflow-scrolling: touch; /* iOS boost */
-  scrollbar-width: none; /* Firefox */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
 .videos-container::-webkit-scrollbar {
-  display: none; /* Chrome */
+  display: none;
 }
 
 video {
-  flex: 0 0 auto;
-  width: 320px;
-  height: 250px;
-  scroll-snap-align: start;
+  flex: 0 0 100%; /* Default: 1 video per row on small screens */
+  height: 225px;
+  scroll-snap-align: center;
   border-radius: 10px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+  transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+  object-fit: cover;
 }
+
 
 video:hover {
   transform: scale(1.03);
@@ -556,29 +558,16 @@ form input, textarea{
   /*VIDEOS SECTION*/
 
 
-/* Medium screens: Show 2 videos */
-@media (max-width: 768px) {
+
+@media screen and (min-width: 600px) {
   video {
-      width: 48%;
+    flex: 0 0 calc(50% - 12px); /* Medium screens: 2 videos */
   }
 }
 
-/* Small screens: Show 1 video */
-@media (max-width: 480px) {
+@media screen and (min-width: 1024px) {
   video {
-      width: 100%;
-  }
-}
-
-@media (max-width: 768px) {
-  .product-card {
-      flex: 0 0 calc(50% - 10px);
-  }
-}
-
-@media (max-width: 480px) {
-  .product-card {
-      flex: 0 0 100%;
+    flex: 0 0 calc(33.333% - 16px); /* Large screens: 3 videos */
   }
 }
 
