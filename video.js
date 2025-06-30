@@ -1,97 +1,90 @@
-const slider = document.getElementById('videoSlider');
-const videos = slider.querySelectorAll('video');
-const nextBtn = document.querySelector('.nav.next');
-const prevBtn = document.querySelector('.nav.prev');
+document.addEventListener("DOMContentLoaded", () => {
+  const container = document.getElementById("videoSlider");
+  const videos = Array.from(container.querySelectorAll("video"));
+  const nextBtn = document.querySelector(".next");
+  const prevBtn = document.querySelector(".prev");
 
-let index = 0;
-let direction = 1;
-let autoScrollInterval;
-let swipeStartX = 0;
+  let currentIndex = 0;
+  let autoplayInterval;
+  let userTouched = false;
 
-// Determine videos per view
-function getVisibleCount() {
-  const w = window.innerWidth;
-  if (w >= 900) return 3;
-  if (w >= 700) return 2;
-  return 1;
-}
-
-// Calculate scroll distance per swipe/step
-function getScrollStep() {
-  const videoWidth = slider.scrollWidth / videos.length;
-  return videoWidth * getVisibleCount();
-}
-
-// Clamp index within limits
-function clampIndex(i) {
-  return Math.max(0, Math.min(i, videos.length - getVisibleCount()));
-}
-
-// Scroll to index position
-function updateSlider() {
-  const step = getScrollStep();
-  slider.scrollTo({ left: index * step, behavior: 'smooth' });
-  updateCenterVideo();
-}
-
-// Zoom and play center video
-function updateCenterVideo() {
-  const center = slider.offsetWidth / 2;
-  videos.forEach(video => {
-    const box = video.getBoundingClientRect();
-    const mid = box.left + box.width / 2;
-    const isCenter = Math.abs(center - mid) < box.width / 2;
-
-    video.classList.toggle('center', isCenter);
-    if (isCenter) video.play().catch(() => {});
-    else video.pause();
-  });
-}
-
-// Bidirectional autoplay logic
-function autoSlide() {
-  const visible = getVisibleCount();
-  if (index >= videos.length - visible) direction = -1;
-  if (index <= 0) direction = 1;
-  index += direction;
-  updateSlider();
-}
-
-// Manual controls
-function manualSlide(dir) {
-  direction = dir;
-  index = clampIndex(index + dir);
-  updateSlider();
-  resetAuto();
-}
-
-// Swipe handler
-slider.addEventListener('touchstart', e => swipeStartX = e.touches[0].clientX);
-slider.addEventListener('touchend', e => {
-  const delta = e.changedTouches[0].clientX - swipeStartX;
-  if (Math.abs(delta) > 50) {
-    manualSlide(delta > 0 ? -1 : 1);
+  /** Get how many videos per screen width */
+  function getVideosPerView() {
+    const w = window.innerWidth;
+    if (w >= 1024) return 3;
+    if (w >= 600) return 2;
+    return 1;
   }
+
+  /** Scroll and highlight center */
+  function scrollToIndex(index) {
+    const video = videos[index];
+    if (!video) return;
+
+    const offset = video.offsetLeft - (container.clientWidth - video.clientWidth) / 2;
+    container.scrollTo({ left: offset, behavior: "smooth" });
+
+    videos.forEach((v, i) => {
+      v.classList.toggle("active-video", i === index);
+    });
+  }
+
+  /** Manual navigation */
+  function goNext() {
+    currentIndex = (currentIndex + 1) % videos.length;
+    scrollToIndex(currentIndex);
+    resetAutoplay();
+  }
+
+  function goPrev() {
+    currentIndex = (currentIndex - 1 + videos.length) % videos.length;
+    scrollToIndex(currentIndex);
+    resetAutoplay();
+  }
+
+  /** Start autoplay forward only */
+  function startAutoplay() {
+    clearInterval(autoplayInterval);
+    autoplayInterval = setInterval(() => {
+      if (!userTouched) {
+        currentIndex = (currentIndex + 1) % videos.length;
+        scrollToIndex(currentIndex);
+      } else {
+        userTouched = false;
+      }
+    }, 4000); // adjust autoplay speed
+  }
+
+  /** Pause + restart autoplay if user touches */
+  function resetAutoplay() {
+    userTouched = true;
+    startAutoplay();
+  }
+
+  /** Event Bindings */
+  nextBtn.addEventListener("click", goNext);
+  prevBtn.addEventListener("click", goPrev);
+
+  /** Swipe Gesture Support */
+  let startX = 0;
+
+  container.addEventListener("touchstart", (e) => {
+    startX = e.touches[0].clientX;
+  });
+
+  container.addEventListener("touchend", (e) => {
+    const dx = e.changedTouches[0].clientX - startX;
+    if (dx > 50) goPrev();
+    else if (dx < -50) goNext();
+  });
+
+  /** Resize Recalculation */
+  window.addEventListener("resize", () => {
+    scrollToIndex(currentIndex);
+  });
+
+  /** Kick things off */
+  scrollToIndex(currentIndex);
+  startAutoplay();
 });
-
-// Button clicks
-nextBtn.addEventListener('click', () => manualSlide(1));
-prevBtn.addEventListener('click', () => manualSlide(-1));
-
-// Resize awareness
-window.addEventListener('resize', () => {
-  updateSlider();
-});
-
-// Looping autoplay
-function startAuto() {
-  autoScrollInterval = setInterval(autoSlide, 5000);
-}
-function resetAuto() {
-  clearInterval(autoScrollInterval);
-  startAuto();
-}
-
-// Start everything
-updateSlider();
-startAuto();
+    
