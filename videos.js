@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const container = document.querySelector(".videos-container");
+  const container = document.getElementById("videoSlider");
   const videos = Array.from(container.querySelectorAll("video"));
   const nextBtn = document.querySelector(".next");
   const prevBtn = document.querySelector(".prev");
@@ -7,57 +7,57 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentIndex = 0;
   let autoplayDirection = 1;
   let autoplayInterval;
-  let videoPerView = getVideosPerView();
 
-  /** Get videos per screen size */
+  /** Calculate how many videos are visible per view */
   function getVideosPerView() {
-    if (window.innerWidth >= 1024) return 3;
-    if (window.innerWidth >= 600) return 2;
+    const width = window.innerWidth;
+    if (width >= 1024) return 3;
+    if (width >= 600) return 2;
     return 1;
   }
 
-  /** Update the current center zoom */
-  function updateCenterZoom(index) {
-    videos.forEach((video, i) => {
-      video.classList.toggle("active-video", i === index);
+  let videosPerView = getVideosPerView();
+
+  /** Scroll to a specific index and highlight it */
+  function scrollToIndex(index) {
+    const video = videos[index];
+    if (!video) return;
+
+    const offset = video.offsetLeft - (container.clientWidth - video.clientWidth) / 2;
+    container.scrollTo({ left: offset, behavior: "smooth" });
+
+    videos.forEach((v, i) => {
+      v.classList.toggle("active-video", i === index);
     });
   }
 
-  /** Scroll to index */
-  function scrollToIndex(index) {
-    const target = videos[index];
-    if (target) {
-      const offsetLeft = target.offsetLeft - (container.clientWidth - target.clientWidth) / 2;
-      container.scrollTo({ left: offsetLeft, behavior: "smooth" });
-      updateCenterZoom(index);
-    }
-  }
-
-  /** Go to next video */
+  /** Navigation logic */
   function goNext() {
     currentIndex = (currentIndex + 1) % videos.length;
     scrollToIndex(currentIndex);
   }
 
-  /** Go to previous video */
   function goPrev() {
     currentIndex = (currentIndex - 1 + videos.length) % videos.length;
     scrollToIndex(currentIndex);
   }
 
-  /** Start autoplay loop */
+  /** Autoplay carousel with directional awareness */
   function startAutoplay() {
     clearInterval(autoplayInterval);
     autoplayInterval = setInterval(() => {
-      if (currentIndex + autoplayDirection >= videos.length || currentIndex + autoplayDirection < 0) {
-        autoplayDirection *= -1; // reverse direction
+      if (
+        currentIndex + autoplayDirection >= videos.length ||
+        currentIndex + autoplayDirection < 0
+      ) {
+        autoplayDirection *= -1;
       }
       currentIndex += autoplayDirection;
       scrollToIndex(currentIndex);
-    }, 4000); // slow loop speed
+    }, 4000); // Adjust loop speed here
   }
 
-  /** Handle manual navigation */
+  /** Manual navigation triggers */
   nextBtn.addEventListener("click", () => {
     goNext();
     startAutoplay();
@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     startAutoplay();
   });
 
-  /** Swipe support */
+  /** Handle swipe gestures for touch devices */
   let touchStartX = 0;
 
   container.addEventListener("touchstart", (e) => {
@@ -76,19 +76,19 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   container.addEventListener("touchend", (e) => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    if (dx > 50) goPrev();
-    if (dx < -50) goNext();
+    const deltaX = e.changedTouches[0].clientX - touchStartX;
+    if (deltaX > 50) goPrev();
+    else if (deltaX < -50) goNext();
     startAutoplay();
   });
 
-  /** Responsive recalculation */
+  /** Recompute layout on resize */
   window.addEventListener("resize", () => {
-    videoPerView = getVideosPerView();
+    videosPerView = getVideosPerView();
     scrollToIndex(currentIndex);
   });
 
-  /** Init */
+  /** Initialize everything */
   scrollToIndex(currentIndex);
   startAutoplay();
 });
